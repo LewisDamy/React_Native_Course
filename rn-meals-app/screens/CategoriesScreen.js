@@ -1,62 +1,44 @@
-import React from 'react';
-import { 
-    View, 
-    Text, 
-    TouchableOpacity, 
-    StyleSheet, 
-    FlatList,
-} from 'react-native';
+import { FlatList } from 'react-native';
+import CategoryGridTile from '../components/CategoryGridTile';
 
 import { CATEGORIES } from '../data/dummy-data';
 
-
-
-const CategoriesScreen = props => {
-    const renderGridItem = itemData => {
-        return (
-            <TouchableOpacity 
-                style={styles.gridItem}
-                onPress={() => {
-                    props.navigation.navigate({
-                        routeName: 'CategoryMeals',
-                        params: {
-                            categoryId: itemData.item.id //forward the id to next screen
-                        } 
-                    });
-                }}
-            >
-                <View >
-                    <Text>{itemData.item.title}</Text>
-                </View>
-            </TouchableOpacity>
-        );
+/* 
+  passing navigation as props in order to access function and pass as
+  argument the name of the screen to be move forward and some data, in 
+  this case we called categoryId and it's pointing at the id of the item
+  defined in the the class from category.js and used in dummy-data.js.
+*/
+function CategoriesScreen({ navigation }) { 
+  function renderCategoryItem(itemData) {
+    function pressHandler() {
+      navigation.navigate('MealsOverview', {
+        categoryId: itemData.item.id, 
+      });
     }
-
+    // return each tile of the grid
     return (
-        <FlatList 
-            keyExtractor={(item, index) => item.id}
-            data={CATEGORIES} 
-            renderItem={renderGridItem} 
-            numColumns={2} 
-        />
+      <CategoryGridTile
+        title={itemData.item.title}
+        color={itemData.item.color} 
+        //function to handle the change of the CategoryGridTile
+        onPress={pressHandler} 
+      />
     );
-};
-
-CategoriesScreen.navigationOptions = {
-    headerTitle: 'Meal Categories'
-};
-
-const styles = StyleSheet.create({
-    screen: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    gridItem: {
-        flex: 1,
-        margin: 15,
-        height: 150
-    }
-});
+  }
+  /* 
+    return the list of tiles, as a flatlist component and passing
+    as arguments, the location of the data, in this case the variable
+    CATEGORIES defined in dummy-data.js, the id and the item to be displayed
+  */
+  return (
+    <FlatList
+      data={CATEGORIES}
+      keyExtractor={(item) => item.id}
+      renderItem={renderCategoryItem}
+      numColumns={2}
+    />
+  );
+}
 
 export default CategoriesScreen;
