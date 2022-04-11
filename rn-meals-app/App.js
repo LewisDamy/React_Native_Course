@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import { Button, StyleSheet } from 'react-native';
 // install npm install @react-navigation/drawer and 
 // if problem with reanimated run: npm install react-native-reanimated@1 --save --save-exact
@@ -7,11 +6,14 @@ import { createDrawerNavigator, DrawerContent, DrawerContentScrollView } from '@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack'; 
 import { Ionicons } from '@expo/vector-icons';
+// install npm install @reduxjs/toolkit react-redux
+import { Provider } from 'react-redux';
 
 import CategoriesScreen from './screens/CategoriesScreen';
 import MealsOverviewScreen from './screens/MealsOverviewScreen';
 import MealDetailScreen from './screens/MealDetailScreen';
 import FavoriteScreen from './screens/FavoritesScreen';
+import { store } from './store/redux/store';
 
 
 /* 
@@ -60,48 +62,43 @@ function DrawerNavigator() {
 export default function App() {
   return (
     <>
-      <StatusBar style="dark" />
-      <NavigationContainer>
-        <Stack.Navigator 
-          screenOptions={{ //ALL PAGES WILL HAVE THIS CONFIG
-            headerStyle: { backgroundColor: '#545454' }, //add color to title 
-            headerTintColor: 'white', //add color to title
-            contentStyle: { backgroundColor: 'white' } //add background color to all page content 
-          }}
-        >
-          <Stack.Screen
-            name="Drawers" 
-            component={DrawerNavigator} 
-            options={{
-              //remove stack navigator bar when used in one of the drawer navigator screens
-              headerShown: false
-            }} 
-          />
-          <Stack.Screen name="MealsOverview" component={MealsOverviewScreen} 
-            options={({ route, navigation }) => {
-              const catId = route.params.categoryId;
-              return {
-                title: catId,
-              }
+      <Provider store={store}>
+        { /* 
+          we should wrap our redux provider and our store around all
+          the components that need to interact with the redux store, so
+          we're providing this store to our app in different parts 
+        */ }
+      
+        <NavigationContainer>
+          <Stack.Navigator 
+            screenOptions={{ //ALL PAGES WILL HAVE THIS CONFIG
+              headerStyle: { backgroundColor: '#545454' }, //add color to title 
+              headerTintColor: 'white', //add color to title
+              contentStyle: { backgroundColor: 'white' } //add background color to all page content 
             }}
-          />
-          <Stack.Screen name="MealDetail" component={MealDetailScreen} //point to the component
-            options={{
-              title: 'Meal Detail', //add title to screen
-              /* 
-                Function that modify the heading of the screen but only
-                used if you don't need direct interaction with the
-                component that is responsible for rendering the screen content
-              */
-              headerRight: () => {
-                return(
-                  <Button title='Tap me!'/>
-                );
-              }
-            }} 
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+          >
+            <Stack.Screen
+              name="Drawers" 
+              component={DrawerNavigator} 
+              options={{
+                //remove stack navigator bar when used in one of the drawer navigator screens
+                headerShown: false
+              }} 
+            />
+            <Stack.Screen 
+              name="MealsOverview" 
+              component={MealsOverviewScreen} 
+            />
+            <Stack.Screen 
+              name="MealDetail" 
+              component={MealDetailScreen} //point to the component
+                options={{
+                  title: 'Meal Detail', //add title to screen
+              }} 
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </Provider>
     </>
   );
 }
