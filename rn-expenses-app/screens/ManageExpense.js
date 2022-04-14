@@ -2,7 +2,6 @@ import { useContext, useLayoutEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 
 import ExpenseForm from '../components/ManageExpense/ExpenseForm';
-import Button from '../components/UI/Button';
 import IconButton from '../components/UI/IconButton';
 import { GlobalStyles } from '../constants/styles';
 import { ExpensesContext } from '../store/expenses-context';
@@ -28,6 +27,12 @@ function ManageExpense({ route, navigation }) {
     // convert the editedExpenseId to a boolean value
     const isEditing = !!editedExpenseId; 
 
+    // function to check whether the expense we're currenctly looking at is the same as
+    // the edited expenseId, then we know that this is the expense you wanna edit
+    const selectedExpense = expenseCtx.expenses.find(
+        (expense) => expense.id === editedExpenseId
+        );
+
     // use layoutEffect to control when the function navigation should be
     // re-executed whether the navigation or isEditing var changes
     useLayoutEffect(() => {
@@ -49,24 +54,16 @@ function ManageExpense({ route, navigation }) {
         navigation.goBack();
     };
 
-    function confirmHandler() {
+    // this function will recieve data from the ExpenseForm.js file when the
+    // onSubmit is activated an then modify the Expense in our store
+    function confirmHandler(expenseData) {
         if (isEditing) { // check if we're editing
             expenseCtx.updateExpense(
                 editedExpenseId, // passing the id as first value to be updated
-                { // passing dummy data:
-                    description: 'Test Update new expense',
-                    amount: 39.90,
-                    date: new Date('2022-04-20')
-                } // if so, then use the update function    
+                expenseData 
             ); 
         } else { // else we're adding an expense
-            expenseCtx.addExpense(
-                { // passing dummy data
-                    description: 'Test Add new expense',
-                    amount: 19.90,
-                    date: new Date('2022-04-19')
-                }
-            ); // call the add function and pass some dummy data 
+            expenseCtx.addExpense(expenseData); 
         }
         navigation.goBack();
     };
@@ -74,18 +71,16 @@ function ManageExpense({ route, navigation }) {
     return(
         <View style={styles.container}> 
             {/* Add the custom Form for getting the userInput */}
-            <ExpenseForm /> 
-            <View style={styles.buttons}>
-                <Button style={styles.button} mode='flat' onPress={cancelHandler}>
-                    Cancel
-                </Button>
-
-                {/* If isEditing === true, display 'Update', else 'Add' in screen */}
-                <Button style={styles.button} onPress={confirmHandler}>
-                    {isEditing ? 'Update' : 'Add'}
-                </Button>
-            </View>
-            
+            <ExpenseForm
+                submitButtonLabel={isEditing ? 'Update' : 'Add'} 
+                onCancel={cancelHandler} 
+                //passing the expense new data from the ExpenseForm to the confirmHandler
+                // which will manage through the update/add Expense functions
+                onSubmit={confirmHandler} 
+                // pass an default value for when we're editing the expense
+                // it displays as default the values that were insert previously
+                defaultValues={selectedExpense}
+            />   
             {/* When isEditing === true, display this trash button */}
             {isEditing && (
                 <View style={styles.deleteContainer}>
@@ -108,15 +103,6 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 24,
         backgroundColor: GlobalStyles.colors.primary800
-    },
-    buttons:{
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    button: {
-        minWidth: 120,
-        marginHorizontal: 8
     },
     deleteContainer: {
         marginTop: 16,

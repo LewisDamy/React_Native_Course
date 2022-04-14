@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet } from 'react-native';
 
 import { GlobalStyles } from '../../constants/styles';
 
-function Input({ label, style, textInputConfig }) {
+function Input({ label, style, textInputConfig, invalid }) {
     // var to save the input styles
     const inputStyles = [styles.input];
     // check if there's an text input config and inside of it
@@ -13,9 +13,14 @@ function Input({ label, style, textInputConfig }) {
         inputStyles.push(styles.inputMultiLine);
     }
 
+    if (invalid) { //if true
+        // push to the inputStyles this invalidInput style
+        inputStyles.push(styles.invalidInput)
+    }
+
     return (
         <View style={[styles.inputContainer, style]}>
-            <Text style={styles.label}>{label}</Text>
+            <Text style={[styles.label, invalid && styles.invalidLabel]}>{label}</Text>
             {/* 
                 Adding a generic prop, and spreading onto the TextInput,
                 in order to avoid a lot of paramaters recieved in this 
@@ -50,5 +55,11 @@ const styles = StyleSheet.create({
         minHeight: 100,
         textAlignVertical: 'top' 
     },
+    invalidLabel: {
+        color: GlobalStyles.colors.error500
+    },
+    invalidInput: {
+        backgroundColor: GlobalStyles.colors.error50
+    }
 });
 
