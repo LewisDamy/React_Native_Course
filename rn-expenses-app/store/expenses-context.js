@@ -1,44 +1,5 @@
 import { createContext, useReducer } from "react";
 
-const DUMMY_EXPENSES = [
-    {
-        id: 'e1',
-        description: 'A pair of shoes',
-        amount: 59.90,
-        date: new Date('2022-04-11')
-    },
-    {
-        id: 'e2',
-        description: 'Chocolate Easter Egg',
-        amount: 9.90,
-        date: new Date('2022-04-09')
-    },
-    {
-        id: 'e3',
-        description: 'Wireless Mouse and Keyboard',
-        amount: 119.90,
-        date: new Date('2022-04-10')
-    },
-    {
-        id: 'e4',
-        description: 'A Book',
-        amount: 14.90,
-        date: new Date('2022-04-08')
-    },
-    {
-        id: 'e5',
-        description: 'Another Book ',
-        amount: 14.90,
-        date: new Date('2022-03-08')
-    },
-    {
-        id: 'e6',
-        description: 'Another Shoe',
-        amount: 14.90,
-        date: new Date('2022-03-05')
-    },
-];
-
 // create our store of context
 export const ExpensesContext = createContext({
     // define empty list of expenses
@@ -46,6 +7,8 @@ export const ExpensesContext = createContext({
     // define function to add, by passing as props the obj desctruction
     // of the description,  amount and date of our expense
     addExpense: ({description, amount, date}) => {},
+
+    setExpense: (expenses) => {},
     // function to delete the expense by using id as argument
     deleteExpense: (id) => {},
     // function to update the expense with both the props to obj desctruction
@@ -60,13 +23,21 @@ function expensesReducer(state, action) {
     switch(action.type) {
         case 'ADD':
             /* 
-                return an new state by using annew object and a new array to 
+                return an new state by using a new object and a new array to 
                 update the state in an immutable way, so that we don't mutate
                 the original data in memory and then adding an id based in the 
-                date and an random number
-            */ 
-            const id = new Date().toString() + Math.random().toString();
-            return [{ ...action.payload, id: id }, ...state];
+                firebase autocriation of unique ids
+
+            */   
+            return [action.payload, ...state];
+
+        case 'SET':
+            // return my action.payload because I expect this action payload to be
+            // that array of expenses, which I want to use in here and then inverted
+            // to display the new one at the top
+            const inverted = action.payload.reverse();
+            return inverted;
+
         case 'UPDATE':
             // search in the state array if the id of the expense is the 
             // same as the one that we're looking forward
@@ -110,7 +81,7 @@ function ExpensesContextProvider({ children }) {
         which will be reevaluated if the state changes automatically through the React Hook
     */
     // passing as second argument the default array of expenses
-    const [expensesState, dispatch] = useReducer(expensesReducer, DUMMY_EXPENSES);
+    const [expensesState, dispatch] = useReducer(expensesReducer, []);
     // function to add an expense by calling the dispance function 
     // privided by the useReducer
     function addExpense(expenseData) {
@@ -123,6 +94,13 @@ function ExpensesContextProvider({ children }) {
             as an "data" or in this case usually called as 'payload'.
         */
         dispatch({ type: 'ADD', payload: expenseData });
+    }
+    // function to set the expense when we initially fetch the data, so that when,
+    // we get then from the backend we can set then to our context and then we 
+    // we on the fetched and set expense
+    function setExpenses(expenses) {
+        // call the dispatch function as set type and pass the expenses to be added
+        dispatch({ type: 'SET', payload: expenses});
     }
 
     function deleteExpense(id) {
@@ -141,6 +119,7 @@ function ExpensesContextProvider({ children }) {
         expenses: expensesState,
         // add the expense functions to the ones inside our ExpensesContextProvider
         addExpense: addExpense,
+        setExpenses: setExpenses,
         deleteExpense: deleteExpense,
         updateExpense: updateExpense
     };
