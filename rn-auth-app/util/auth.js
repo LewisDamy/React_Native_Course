@@ -2,7 +2,7 @@
 import axios from "axios";
 
 // key from the FireBase website settings from this project
-const API_KEY = 'AIzaSyCiDrcv0Z7eqwc0p5uQ8LGai8SkxkQmDd0';
+const API_KEY = '';
 
 // function to construct the url dynamically
 // function that calls the firebase REST API to make the 
