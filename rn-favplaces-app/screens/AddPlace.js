@@ -1,13 +1,14 @@
-import { View, Text, StyleSheet } from 'react-native';
 import PlaceForm from '../components/Places/PlaceForm';
+import { insertPlace } from '../util/database';
 
 function AddPlace({ navigation }) {
     
     // function that handles the info coming from PlaceFrom as props
-    function createPlaceHandler(place) {
-        navigation.navigate('AllPlaces', {
-            place: place //pass the data place to the AllPlaces screen through route parameters
-        });        
+    async function createPlaceHandler(place) {
+        // insert into database and wait for the response   
+        await insertPlace(place);
+        // just navigate to the allplaces screen
+        navigation.navigate('AllPlaces');        
     }
 
     return (
