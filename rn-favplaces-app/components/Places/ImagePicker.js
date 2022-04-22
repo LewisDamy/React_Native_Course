@@ -8,7 +8,7 @@ import OutlinedButton from '../UI/OutlinedButton';
 
 
 
-function ImagePicker() {
+function ImagePicker({ onTakeImage }) {
 
     // store the state of the image to display the preview of it
     const [pickedImage, setPickedImage] = useState();
@@ -54,6 +54,8 @@ function ImagePicker() {
         }); 
         // pass to the state the image uri (local locationi of the image)
         setPickedImage(image.uri);
+        // forward the image uri to the PlaceForm component to be used 
+        onTakeImage(image.uri);
     };
     // default text if no image picked
     let imagePreview = <Text>No image taken yet.</Text>;
@@ -83,16 +85,17 @@ export default ImagePicker;
 
 const styles = StyleSheet.create({
     imagePreview: {
-        width: '100%',
-        height: 200,
-        marginVertical: 8,
-        justifyContent: 'center',
-        alignContent: 'center',
-        backgroundColor: Colors.primary100,
-        borderRadius: 4
+      width: '100%',
+      height: 200,
+      marginVertical: 8,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: Colors.primary100,
+      borderRadius: 4,
+      overflow: 'hidden'
     },
     image: {
-        width: '100%',
-        height: '100%'
+      width: '100%',
+      height: '100%',
     },
-});
+  });

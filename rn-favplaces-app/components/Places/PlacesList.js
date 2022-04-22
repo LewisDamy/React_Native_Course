@@ -15,6 +15,7 @@ function PlacesList({ places }) {
     // render list of places w/ FlatList
     return (
         <FlatList 
+            style={styles.list}
             data={places}
             keyExtractor={(item) => item.id} //point to the id from each item
             // render an PlaceItem component that has the place the item as whole
@@ -26,6 +27,9 @@ function PlacesList({ places }) {
 export default PlacesList;
 
 const styles = StyleSheet.create({
+    list: {
+        margin: 14
+    },
     fallbackContainer: {
         flex: 1,
         justifyContent: 'center',
