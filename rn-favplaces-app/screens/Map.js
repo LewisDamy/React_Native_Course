@@ -1,32 +1,48 @@
 import { useCallback, useState, useLayoutEffect } from 'react';
 import { Alert, StyleSheet } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import IconButton from '../components/UI/IconButton';
 // mapView package, run: expo install react-native-maps
+import MapView, { Marker } from 'react-native-maps';
 
+import IconButton from '../components/UI/IconButton';
 
-
-function Map({navigation}) {
-
-    const [selectedLocation, setSelectedLocation] = useState();
-
+function Map({ navigation, route }) {
+    
+    // set the intial location if there's params, else set to unidefined
+    const initialLocation = route.params && {
+        lat: route.params.initialLat,
+        lng: route.params.initialLng,
+    };
+    // set the selected location to be as initialLocation as the default of the state
+    // once we've gather already the info from the params IF THERE'S ONE, else it's undefined
+    const [selectedLocation, setSelectedLocation] = useState(initialLocation);
+    // by doing this, we can view the marker when clicked in the view map from our PlaceDetail screen
+    
+    const region = {
+        // will define the center of the map
+        latitude: initialLocation ? initialLocation.lat : 37.78,
+        longitude: initialLocation ? initialLocation.lng : -122.43,
+        // will define how much content besides the center will be visible
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+    };
+    
     function selectLocationHandler(event) {
-        // console.log(event);
+        // if we do have an initial location, so we're in read mode only
+        if (initialLocation) { // just return teh function 
+          return;
+        }
+        // take the location from the api, lat and lng, and save it
         const lat = event.nativeEvent.coordinate.latitude;
         const lng = event.nativeEvent.coordinate.longitude;
-
-
-        setSelectedLocation({
-            // pass the lat and lng from event to state
-            lat: lat, lng: lng
-        });
-    };  
-
+        // pass that location to the state handler
+        setSelectedLocation({ lat: lat, lng: lng });
+      }
+      
     /*
         variable that holds a function to save the location
         the useCallBack is used to hep ensure that a function defined inside
         of a component is not recreated unnecessarily
-    */
+        */
     const savePickedLocationHandler = useCallback(() => {
         if (!selectedLocation) { // check if location has NOT been picked
             Alert.alert( // send an alert if that's the case
@@ -54,6 +70,11 @@ function Map({navigation}) {
         infinite loops and unecessary re-executions
     */
     useLayoutEffect(() => {
+        // if an initial location is defined, do nothing
+        // in this case it'll happen when we're on the place details screen we don't want the save button
+        if(initialLocation) {
+            return;
+        }
         navigation.setOptions({
             headerRight: ({tintColor}) => (
                 <IconButton 
@@ -65,16 +86,8 @@ function Map({navigation}) {
             ),
         });
         // keep track those two things
-    }, [navigation, savePickedLocationHandler])
+    }, [navigation, savePickedLocationHandler, initialLocation])
 
-    const region = {
-        // will define the center of the map
-        latitude: 37.78,
-        longitude: -122.43,
-        // will define how much content besides the center will be visible
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421
-    };
 
     return (
         <MapView 
